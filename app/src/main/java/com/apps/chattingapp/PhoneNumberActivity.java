@@ -20,6 +20,8 @@ public class PhoneNumberActivity extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
+        binding.phoneBox.requestFocus();
+
         binding.continueBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
