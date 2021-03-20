@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ public class SetupProfileActivity extends AppCompatActivity {
     FirebaseStorage storage;
     Uri selectedImage;
 
+    ProgressDialog dialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +37,10 @@ public class SetupProfileActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         getSupportActionBar().hide();
+
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Uploading profile...");
+        dialog.setCancelable(false);
 
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
@@ -59,6 +66,8 @@ public class SetupProfileActivity extends AppCompatActivity {
                     return;
                 }
 
+                dialog.show();
+
                 if (selectedImage != null) {
                     StorageReference reference = storage.getReference().child("Profiles").child(auth.getUid());
                     reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -71,16 +80,17 @@ public class SetupProfileActivity extends AppCompatActivity {
                                         String imageUrl = uri.toString();
                                         String uid = auth.getUid();
                                         String phone = auth.getCurrentUser().getPhoneNumber();
-                                        String name = binding.nameBox.getText().toString();
 
                                         User user = new User(uid, name, phone, imageUrl);
 
                                         database.getReference()
                                                 .child("Users")
+                                                .child(uid)
                                                 .setValue(user)
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
+                                                        dialog.dismiss();
                                                         Intent intent = new Intent(SetupProfileActivity.this, MainActivity.class);
                                                         startActivity(intent);
                                                         finish();
@@ -91,6 +101,25 @@ public class SetupProfileActivity extends AppCompatActivity {
                             }
                         }
                     });
+                } else {
+                    String uid = auth.getUid();
+                    String phone = auth.getCurrentUser().getPhoneNumber();
+
+                    User user = new User(uid, name, phone, "No Image");
+
+                    database.getReference()
+                            .child("Users")
+                            .child(uid)
+                            .setValue(user)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    dialog.dismiss();
+                                    Intent intent = new Intent(SetupProfileActivity.this, MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            });
                 }
             }
         });
