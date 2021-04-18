@@ -1,4 +1,4 @@
-package com.apps.chattingapp;
+package com.apps.chattingapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 
+import com.apps.chattingapp.Models.User;
 import com.apps.chattingapp.databinding.ActivitySetupProfileBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;

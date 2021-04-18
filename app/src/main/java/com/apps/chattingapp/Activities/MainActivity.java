@@ -1,4 +1,4 @@
-package com.apps.chattingapp;
+package com.apps.chattingapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,6 +8,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.apps.chattingapp.R;
+import com.apps.chattingapp.Models.User;
+import com.apps.chattingapp.Adapters.UsersAdapter;
 import com.apps.chattingapp.databinding.ActivityMainBinding;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

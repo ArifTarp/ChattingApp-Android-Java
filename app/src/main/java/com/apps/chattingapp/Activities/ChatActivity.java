@@ -1,4 +1,4 @@
-package com.apps.chattingapp;
+package com.apps.chattingapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 

@@ -1,4 +1,4 @@
-package com.apps.chattingapp;
+package com.apps.chattingapp.Adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,9 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.apps.chattingapp.Activities.ChatActivity;
+import com.apps.chattingapp.R;
+import com.apps.chattingapp.Models.User;
 import com.apps.chattingapp.databinding.RowConversationBinding;
 import com.bumptech.glide.Glide;
 
@@ -44,7 +47,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context,ChatActivity.class);
+                Intent intent = new Intent(context, ChatActivity.class);
                 intent.putExtra("name",user.getName());
                 intent.putExtra("uid",user.getUid());
                 context.startActivity(intent);
