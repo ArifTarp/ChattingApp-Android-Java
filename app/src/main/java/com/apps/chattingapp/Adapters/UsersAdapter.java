@@ -14,8 +14,15 @@ import com.apps.chattingapp.R;
 import com.apps.chattingapp.Models.User;
 import com.apps.chattingapp.databinding.RowConversationBinding;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHolder> {
 
@@ -37,6 +44,37 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
     @Override
     public void onBindViewHolder(@NonNull UsersViewHolder holder, int position) {
         User user = users.get(position);
+
+        String senderId = FirebaseAuth.getInstance().getUid();
+        String senderRoom = senderId + user.getUid();
+
+        FirebaseDatabase.getInstance().getReference()
+                .child("Chats")
+                .child(senderRoom)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            if (snapshot.child("lastMessage").exists() && snapshot.child("lastMessageTime").exists()) {
+                                String lastMessage = snapshot.child("lastMessage").getValue(String.class);
+                                long time = snapshot.child("lastMessageTime").getValue(Long.class);
+
+                                SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a");
+
+                                holder.binding.lastMessage.setText(lastMessage);
+                                holder.binding.messageTime.setText(dateFormat.format(new Date(time)));
+                            }
+
+                        } else {
+                            holder.binding.lastMessage.setText("Tap to chat");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
 
         holder.binding.userName.setText(user.getName());
 
