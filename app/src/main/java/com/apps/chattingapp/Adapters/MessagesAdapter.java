@@ -12,6 +12,8 @@ import com.apps.chattingapp.Models.Message;
 import com.apps.chattingapp.R;
 import com.apps.chattingapp.databinding.ItemReceiveBinding;
 import com.apps.chattingapp.databinding.ItemSentBinding;
+import com.github.pgreze.reactions.ReactionsConfig;
+import com.github.pgreze.reactions.ReactionsConfigBuilder;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -58,6 +60,17 @@ public class MessagesAdapter extends RecyclerView.Adapter {
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         Message message = messages.get(position);
+
+        ReactionsConfig config = new ReactionsConfigBuilder(context)
+                .withReactions(new int[]{
+                        R.drawable.ic_fb_like,
+                        R.drawable.ic_fb_love,
+                        R.drawable.ic_fb_laugh,
+                        R.drawable.ic_fb_wow,
+                        R.drawable.ic_fb_sad,
+                        R.drawable.ic_fb_angry
+                })
+                .build();
 
         if (holder.getClass() == SentViewHolder.class) {
             SentViewHolder viewHolder = (SentViewHolder)holder;

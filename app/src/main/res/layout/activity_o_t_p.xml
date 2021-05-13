@@ -64,6 +64,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="5dp"
+                android:focusableInTouchMode="true"
                 android:inputType="number"
                 android:itemBackground="@color/grey"
                 android:textColor="@android:color/holo_red_dark"

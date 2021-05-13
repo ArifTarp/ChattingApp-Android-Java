@@ -22,11 +22,11 @@ public class PhoneNumberActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        if (auth.getCurrentUser() != null) {
+        /*if (auth.getCurrentUser() != null) {
             Intent intent = new Intent(PhoneNumberActivity.this, MainActivity.class);
             startActivity(intent);
             finish();
-        }
+        }*/
 
         getSupportActionBar().hide();
 

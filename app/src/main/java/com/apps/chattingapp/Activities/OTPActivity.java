@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.apps.chattingapp.databinding.ActivityOTPBinding;
@@ -56,12 +58,12 @@ public class OTPActivity extends AppCompatActivity {
                 .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
                     @Override
                     public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
-
+                        Toast.makeText(OTPActivity.this, "Code has been sent...", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onVerificationFailed(@NonNull FirebaseException e) {
-
+                        Toast.makeText(OTPActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -69,6 +71,10 @@ public class OTPActivity extends AppCompatActivity {
                         super.onCodeSent(verifyId, forceResendingToken);
                         dialog.dismiss();
                         verificationId = verifyId;
+
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+                        binding.otpView.requestFocus();
                     }
                 })
                 .build();
