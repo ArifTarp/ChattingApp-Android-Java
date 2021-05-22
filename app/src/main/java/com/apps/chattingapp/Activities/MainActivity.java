@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import com.apps.chattingapp.Adapters.StatusAdapter;
+import com.apps.chattingapp.Adapters.UserStatusAdapter;
 import com.apps.chattingapp.Models.Status;
 import com.apps.chattingapp.Models.UserStatus;
 import com.apps.chattingapp.R;
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
     ArrayList<User> users;
     UsersAdapter usersAdapter;
-    StatusAdapter statusAdapter;
+    UserStatusAdapter userStatusAdapter;
     ArrayList<UserStatus> userStatuses;
     FirebaseStorage storage;
     ProgressDialog dialog;
@@ -80,10 +80,10 @@ public class MainActivity extends AppCompatActivity {
         dialog.setCancelable(false);
 
         usersAdapter = new UsersAdapter(this, users);
-        statusAdapter = new StatusAdapter(this, userStatuses);
+        userStatusAdapter = new UserStatusAdapter(this, userStatuses);
 
         binding.recyclerView.setAdapter(usersAdapter);
-        binding.statusList.setAdapter(statusAdapter);
+        binding.statusList.setAdapter(userStatusAdapter);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    userStatuses.clear();
                     for (DataSnapshot storySnapshot : snapshot.getChildren()) {
                         UserStatus userStatus = new UserStatus();
                         userStatus.setName(storySnapshot.child("name").getValue(String.class));
@@ -140,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                         userStatus.setStatuses(statuses);
                         userStatuses.add(userStatus);
                     }
-                    statusAdapter.notifyDataSetChanged();
+                    userStatusAdapter.notifyDataSetChanged();
                 }
             }
 
