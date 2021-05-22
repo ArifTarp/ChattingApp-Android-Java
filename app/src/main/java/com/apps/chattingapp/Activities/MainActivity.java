@@ -121,7 +121,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        
+        database.getReference().child("Stories").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot storySnapshot : snapshot.getChildren()) {
+                        UserStatus userStatus = new UserStatus();
+                        userStatus.setName(storySnapshot.child("name").getValue(String.class));
+                        userStatus.setProfileImage(storySnapshot.child("profileImage").getValue(String.class));
+                        userStatus.setLastUpdated(storySnapshot.child("lastUpdated").getValue(Long.class));
+
+                        ArrayList<Status> statuses = new ArrayList<>();
+                        for (DataSnapshot statusSnapshot : storySnapshot.child("Statuses").getChildren()) {
+                            Status status = statusSnapshot.getValue(Status.class);
+                            statuses.add(status);
+                        }
+
+                        userStatus.setStatuses(statuses);
+                        userStatuses.add(userStatus);
+                    }
+                    statusAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
