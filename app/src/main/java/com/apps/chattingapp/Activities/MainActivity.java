@@ -110,7 +110,9 @@ public class MainActivity extends AppCompatActivity {
                 users.clear();
                 for (DataSnapshot ss : snapshot.getChildren()) {
                     User user = ss.getValue(User.class);
-                    users.add(user);
+                    if (!(user.getUid().equals(auth.getUid()))){
+                        users.add(user);
+                    }
                 }
                 usersAdapter.notifyDataSetChanged();
             }
