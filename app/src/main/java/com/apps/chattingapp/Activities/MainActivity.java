@@ -85,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
         binding.recyclerView.setAdapter(usersAdapter);
         binding.statusList.setAdapter(userStatusAdapter);
 
+        binding.recyclerView.showShimmerAdapter();
+        binding.statusList.showShimmerAdapter();
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(RecyclerView.HORIZONTAL);
         binding.statusList.setLayoutManager(layoutManager);
@@ -114,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
                         users.add(user);
                     }
                 }
+                binding.recyclerView.hideShimmerAdapter();
+                binding.statusList.hideShimmerAdapter();
                 usersAdapter.notifyDataSetChanged();
             }
 
