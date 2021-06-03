@@ -1,23 +1,34 @@
 package com.apps.chattingapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import com.apps.chattingapp.Adapters.MessagesAdapter;
 import com.apps.chattingapp.Models.Message;
 import com.apps.chattingapp.databinding.ActivityChatBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -30,6 +41,9 @@ public class ChatActivity extends AppCompatActivity {
     String senderRoom, receiverRoom;
 
     FirebaseDatabase database;
+    FirebaseStorage storage;
+
+    ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +52,9 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         messages = new ArrayList<>();
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Uploading image...");
+        dialog.setCancelable(false);
 
         String name = getIntent().getStringExtra("name");
         String receiverUid = getIntent().getStringExtra("uid");
@@ -51,6 +68,7 @@ public class ChatActivity extends AppCompatActivity {
         binding.recyclerView.setAdapter(adapter);
 
         database = FirebaseDatabase.getInstance();
+        storage = FirebaseStorage.getInstance();
 
         database.getReference().child("Chats")
                 .child(senderRoom)
@@ -114,8 +132,54 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        binding.attachment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 25);
+            }
+        });
+
         getSupportActionBar().setTitle(name);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 25) {
+            if (data != null) {
+                if (data.getData() != null) {
+                    Uri selectedImage = data.getData();
+                    Calendar calendar = Calendar.getInstance();
+
+                    StorageReference reference = storage.getReference()
+                            .child("Chats")
+                            .child(calendar.getTimeInMillis() + "");
+
+                    dialog.show();
+
+                    reference.putFile(selectedImage).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            dialog.dismiss();
+                            if (task.isSuccessful()) {
+                                reference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        String filePath = uri.toString();
+                                        Toast.makeText(ChatActivity.this,filePath,Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 
     @Override
