@@ -14,7 +14,9 @@ import android.widget.Toast;
 
 import com.apps.chattingapp.Adapters.MessagesAdapter;
 import com.apps.chattingapp.Models.Message;
+import com.apps.chattingapp.R;
 import com.apps.chattingapp.databinding.ActivityChatBinding;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -51,6 +53,8 @@ public class ChatActivity extends AppCompatActivity {
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        setSupportActionBar(binding.toolbar);
+
         messages = new ArrayList<>();
         dialog = new ProgressDialog(this);
         dialog.setMessage("Uploading image...");
@@ -58,6 +62,14 @@ public class ChatActivity extends AppCompatActivity {
 
         String name = getIntent().getStringExtra("name");
         receiverUid = getIntent().getStringExtra("uid");
+        String profileImage = getIntent().getStringExtra("profileImage");
+
+        binding.name.setText(name);
+        Glide.with(ChatActivity.this)
+                .load(profileImage)
+                .placeholder(R.drawable.avatar)
+                .into(binding.profileImage);
+
         senderUid = FirebaseAuth.getInstance().getUid();
 
         senderRoom =  senderUid + receiverUid;
@@ -142,8 +154,14 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        getSupportActionBar().setTitle(name);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        binding.backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     @Override
