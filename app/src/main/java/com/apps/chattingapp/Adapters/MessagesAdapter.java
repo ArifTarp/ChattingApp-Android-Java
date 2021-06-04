@@ -13,6 +13,7 @@ import com.apps.chattingapp.Models.Message;
 import com.apps.chattingapp.R;
 import com.apps.chattingapp.databinding.ItemReceiveBinding;
 import com.apps.chattingapp.databinding.ItemSentBinding;
+import com.bumptech.glide.Glide;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
 import com.github.pgreze.reactions.ReactionsConfigBuilder;
@@ -118,7 +119,18 @@ public class MessagesAdapter extends RecyclerView.Adapter {
 
         if (holder.getClass() == SentViewHolder.class) {
             SentViewHolder viewHolder = (SentViewHolder)holder;
-            viewHolder.binding.message.setText(message.getMessage());
+
+            if (message.getMessage().equals("photo")) {
+                viewHolder.binding.image.setVisibility(View.VISIBLE);
+                viewHolder.binding.message.setVisibility(View.GONE);
+                Glide.with(context)
+                        .load(message.getImageUrl())
+                        .placeholder(R.drawable.image_placeholder)
+                        .into(viewHolder.binding.image);
+            }
+            else {
+                viewHolder.binding.message.setText(message.getMessage());
+            }
 
             if (message.getFeeling() >= 0) {
                 viewHolder.binding.feeling.setImageResource(reactions[message.getFeeling()]);
@@ -132,10 +144,29 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                     return false;
                 }
             });
+
+            viewHolder.binding.image.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popup.onTouch(v,event);
+                    return false;
+                }
+            });
         }
         else {
             ReceiveViewHolder viewHolder = (ReceiveViewHolder)holder;
-            viewHolder.binding.message.setText(message.getMessage());
+
+            if (message.getMessage().equals("photo")) {
+                viewHolder.binding.image.setVisibility(View.VISIBLE);
+                viewHolder.binding.message.setVisibility(View.GONE);
+                Glide.with(context)
+                        .load(message.getImageUrl())
+                        .placeholder(R.drawable.image_placeholder)
+                        .into(viewHolder.binding.image);
+            }
+            else {
+                viewHolder.binding.message.setText(message.getMessage());
+            }
 
             if (message.getFeeling() >= 0) {
                 viewHolder.binding.feeling.setImageResource(reactions[message.getFeeling()]);
@@ -143,6 +174,14 @@ public class MessagesAdapter extends RecyclerView.Adapter {
             }
 
             viewHolder.binding.message.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    popup.onTouch(v,event);
+                    return false;
+                }
+            });
+
+            viewHolder.binding.image.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     popup.onTouch(v,event);
