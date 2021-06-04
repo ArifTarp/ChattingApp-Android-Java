@@ -231,4 +231,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        String currentId = auth.getUid();
+        database.getReference().child("presence").child(currentId).setValue("Online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String currentId = auth.getUid();
+        database.getReference().child("presence").child(currentId).setValue("Offline");
+    }
 }

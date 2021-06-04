@@ -9,6 +9,9 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
@@ -44,6 +47,7 @@ public class ChatActivity extends AppCompatActivity {
 
     FirebaseDatabase database;
     FirebaseStorage storage;
+    FirebaseAuth auth;
 
     ProgressDialog dialog;
 
@@ -60,8 +64,11 @@ public class ChatActivity extends AppCompatActivity {
         dialog.setMessage("Uploading image...");
         dialog.setCancelable(false);
 
+        auth = FirebaseAuth.getInstance();
+
         String name = getIntent().getStringExtra("name");
         receiverUid = getIntent().getStringExtra("uid");
+        senderUid = auth.getUid();
         String profileImage = getIntent().getStringExtra("profileImage");
 
         binding.name.setText(name);
@@ -69,8 +76,6 @@ public class ChatActivity extends AppCompatActivity {
                 .load(profileImage)
                 .placeholder(R.drawable.avatar)
                 .into(binding.profileImage);
-
-        senderUid = FirebaseAuth.getInstance().getUid();
 
         senderRoom =  senderUid + receiverUid;
         receiverRoom = receiverUid + senderUid;
@@ -81,6 +86,29 @@ public class ChatActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance();
         storage = FirebaseStorage.getInstance();
+
+        database.getReference().child("presence").child(receiverUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String status = snapshot.getValue(String.class);
+                    if (!status.isEmpty()) {
+                        if (status.equals("Offline")) {
+                            binding.status.setVisibility(View.GONE);
+                        }
+                        else{
+                            binding.status.setText(status);
+                            binding.status.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         database.getReference().child("Chats")
                 .child(senderRoom)
@@ -161,6 +189,33 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        final Handler handler = new Handler();
+        binding.messageBox.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                database.getReference().child("presence").child(senderUid).setValue("typing...");
+                handler.removeCallbacksAndMessages(null);
+                handler.postDelayed(userStoppedTyping, 1000);
+            }
+
+            Runnable userStoppedTyping = new Runnable() {
+                @Override
+                public void run() {
+                    database.getReference().child("presence").child(senderUid).setValue("Online");
+                }
+            };
+        });
+
         getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
@@ -233,9 +288,23 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
+//    @Override
+//    public boolean onSupportNavigateUp() {
+//        finish();
+//        return super.onSupportNavigateUp();
+//    }
+
     @Override
-    public boolean onSupportNavigateUp() {
-        finish();
-        return super.onSupportNavigateUp();
+    protected void onResume() {
+        super.onResume();
+        String currentId = auth.getUid();
+        database.getReference().child("presence").child(currentId).setValue("Online");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        String currentId = auth.getUid();
+        database.getReference().child("presence").child(currentId).setValue("Offline");
     }
 }
