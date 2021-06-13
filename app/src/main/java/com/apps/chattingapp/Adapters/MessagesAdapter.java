@@ -140,22 +140,6 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                 viewHolder.binding.feeling.setVisibility(View.VISIBLE);
             }
 
-            viewHolder.binding.message.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    popup.onTouch(v,event);
-                    return false;
-                }
-            });
-
-            viewHolder.binding.image.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                    popup.onTouch(v,event);
-                    return false;
-                }
-            });
-
             viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
