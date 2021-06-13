@@ -1,5 +1,6 @@
 package com.apps.chattingapp.Adapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,6 +14,8 @@ import com.apps.chattingapp.Models.Message;
 import com.apps.chattingapp.R;
 import com.apps.chattingapp.databinding.ItemReceiveBinding;
 import com.apps.chattingapp.databinding.ItemSentBinding;
+import com.apps.chattingapp.databinding.ReceiveDeleteDialogBinding;
+import com.apps.chattingapp.databinding.SentDeleteDialogBinding;
 import com.bumptech.glide.Glide;
 import com.github.pgreze.reactions.ReactionPopup;
 import com.github.pgreze.reactions.ReactionsConfig;
@@ -152,6 +155,72 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                     return false;
                 }
             });
+
+            viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    View view = LayoutInflater.from(context).inflate(R.layout.sent_delete_dialog, null);
+                    SentDeleteDialogBinding binding = SentDeleteDialogBinding.bind(view);
+                    AlertDialog dialog = new AlertDialog.Builder(context)
+                            .setTitle("Delete Message")
+                            .setView(binding.getRoot())
+                            .create();
+
+                    binding.deleteForEveryone.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            message.setMessage("This message is removed.");
+                            message.setFeeling(-1);
+
+                            if (message.getMessage().equals("photo")){
+                                viewHolder.binding.image.setVisibility(View.GONE);
+                                viewHolder.binding.message.setVisibility(View.VISIBLE);
+                            }
+
+                            database.getReference()
+                                    .child("Chats")
+                                    .child(senderRoom)
+                                    .child("messages")
+                                    .child(message.getMessageId())
+                                    .setValue(message);
+
+                            database.getReference()
+                                    .child("Chats")
+                                    .child(receiverRoom)
+                                    .child("messages")
+                                    .child(message.getMessageId())
+                                    .setValue(message);
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    binding.cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    binding.deleteForMe.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            database.getReference()
+                                    .child("Chats")
+                                    .child(senderRoom)
+                                    .child("messages")
+                                    .child(message.getMessageId())
+                                    .setValue(null);
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialog.show();
+
+                    return false;
+                }
+            });
         }
         else {
             ReceiveViewHolder viewHolder = (ReceiveViewHolder)holder;
@@ -185,6 +254,43 @@ public class MessagesAdapter extends RecyclerView.Adapter {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     popup.onTouch(v,event);
+                    return false;
+                }
+            });
+
+            viewHolder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    View view = LayoutInflater.from(context).inflate(R.layout.receive_delete_dialog, null);
+                    ReceiveDeleteDialogBinding binding = ReceiveDeleteDialogBinding.bind(view);
+                    AlertDialog dialog = new AlertDialog.Builder(context)
+                            .setTitle("Delete Message")
+                            .setView(binding.getRoot())
+                            .create();
+
+                    binding.cancel.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    binding.deleteForMe.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            database.getReference()
+                                    .child("Chats")
+                                    .child(senderRoom)
+                                    .child("messages")
+                                    .child(message.getMessageId())
+                                    .setValue(null);
+
+                            dialog.dismiss();
+                        }
+                    });
+
+                    dialog.show();
+
                     return false;
                 }
             });
