@@ -14,6 +14,7 @@
 - Reaction to messages
 - Sharing status
 - Online/Offline status
+- Group chat
 
 
 ## UI Views
